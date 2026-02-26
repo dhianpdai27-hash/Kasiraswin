@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bengkel Pro v4.1 - GitHub Ready</title>
+    <title>Bengkel Pro v4.2 - GitHub Stable</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -11,7 +11,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--light); color: #333; padding-bottom: 80px; }
         header { background: var(--primary); color: white; padding: 1rem; text-align: center; border-bottom: 4px solid var(--accent); }
         
-        /* Navigasi Bawah Modern - FIXED ICON FOR GITHUB */
+        /* Navigasi Bawah Modern - DIPERTAHANKAN */
         nav { 
             background: var(--secondary); 
             display: flex; 
@@ -268,6 +268,7 @@
         document.getElementById('modalDetail').style.display = 'block';
     }
 
+    // REVISI FIX: Membersihkan input setelah reprint selesai
     function reprint(idx) {
         const t = db.trxs[idx];
         document.getElementById('noNota').value = t.nota;
@@ -275,10 +276,17 @@
         document.getElementById('custNama').value = t.cust;
         document.getElementById('noPol').value = t.pol;
         document.getElementById('mobilKm').value = t.unit;
+        document.getElementById('catatanTrx').value = t.note || '';
         document.getElementById('inputBody').innerHTML = '';
         JSON.parse(t.items || "[]").forEach(it => addRow(it));
+        
         showSection('transaksi');
-        setTimeout(() => { window.print(); }, 500);
+        
+        setTimeout(() => { 
+            window.print(); 
+            // Setelah jendela print tertutup, kasir dibersihkan kembali
+            setTimeout(() => { resetKasir(); }, 500);
+        }, 500);
     }
 
     function refreshUI() {
@@ -305,13 +313,19 @@
         }
     }
 
+    // LAPORAN FIX: Bisa baca data manual tanpa detail items (Januari)
     function runLaporan() {
         const m = document.getElementById('filterBulan').value;
         let jasa = 0, part = 0;
         db.trxs.filter(t => t.tgl && t.tgl.startsWith(m)).forEach(t => {
-            JSON.parse(t.items || "[]").forEach(it => {
-                if(parseInt(it.prc) >= 300000) part += (it.qty * it.prc); else jasa += (it.qty * it.prc);
-            });
+            const items = JSON.parse(t.items || "[]");
+            if(items.length > 0) {
+                items.forEach(it => {
+                    if(parseInt(it.prc) >= 300000) part += (it.qty * it.prc); else jasa += (it.qty * it.prc);
+                });
+            } else {
+                jasa += parseInt(t.total || 0); // Jika Januari items kosong, masukkan ke Jasa
+            }
         });
         const out = db.exps.filter(e => e.tgl && e.tgl.startsWith(m)).reduce((a, b) => a + b.nom, 0);
         document.getElementById('repJasa').innerText = "Rp " + jasa.toLocaleString('id-ID');
@@ -351,8 +365,10 @@
         document.getElementById('custNama').value = '';
         document.getElementById('noPol').value = '';
         document.getElementById('mobilKm').value = '';
+        document.getElementById('catatanTrx').value = '';
         document.getElementById('inputBody').innerHTML = '';
         addRow();
+        calcTotal();
     }
 
     function generateNotaOtomatis() {
