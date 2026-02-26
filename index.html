@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bengkel Pro v4.0 - Full Fixed</title>
+    <title>Bengkel Pro v4.1 - GitHub Ready</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --secondary: #34495e; --accent: #e67e22; --success: #27ae60; --danger: #c0392b; --light: #f4f7f6; --info: #3498db; }
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--light); color: #333; padding-bottom: 80px; }
         header { background: var(--primary); color: white; padding: 1rem; text-align: center; border-bottom: 4px solid var(--accent); }
         
-        /* Navigasi Bawah Modern */
+        /* Navigasi Bawah Modern - FIXED ICON FOR GITHUB */
         nav { 
             background: var(--secondary); 
             display: flex; 
@@ -21,21 +22,21 @@
             width: 100%; 
             z-index: 100; 
             box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-            padding: 5px 0;
+            padding: 8px 0;
         }
         nav button { 
             background: transparent; 
             color: #bdc3c7; 
-            font-size: 11px; 
+            font-size: 10px; 
             flex-direction: column; 
             display: flex; 
             align-items: center; 
-            padding: 8px 5px;
             width: 20%;
             border: none;
             cursor: pointer;
+            transition: 0.3s;
         }
-        nav button span { font-size: 20px; margin-bottom: 3px; }
+        nav button i { font-size: 24px; margin-bottom: 4px; }
         nav button.active-nav { color: var(--accent); font-weight: bold; }
         
         .container { padding: 20px; max-width: 1100px; margin: auto; }
@@ -71,7 +72,6 @@
             .section { box-shadow: none; border: none; padding: 0; display: block !important; }
             input, textarea { border: none !important; padding: 2px !important; background: transparent !important; resize: none; font-size: 12px; }
             .total-display { background: none; border-top: 2px solid #333; margin-top: 5px; }
-            table th, table td { font-size: 11px; padding: 5px; }
         }
     </style>
 </head>
@@ -79,15 +79,15 @@
 
 <header class="no-print">
     <h1 id="dispNama">Bengkel Pro</h1>
-    <p id="dispAlamat">Alamat Bengkel</p>
+    <p id="dispAlamat">Sistem Manajemen Bengkel</p>
 </header>
 
 <nav class="no-print">
-    <button id="btn-transaksi" onclick="showSection('transaksi')" class="active-nav"><span>ðŸ“</span>Kasir</button>
-    <button id="btn-riwayat" onclick="showSection('riwayat')"><span>ðŸ•’</span>Riwayat</button>
-    <button id="btn-pengeluaran" onclick="showSection('pengeluaran')"><span>ðŸ’¸</span>Biaya</button>
-    <button id="btn-laporan" onclick="showSection('laporan')"><span>ðŸ“Š</span>Laporan</button>
-    <button id="btn-settings" onclick="showSection('settings')"><span>âš™ï¸</span>Profil</button>
+    <button id="btn-transaksi" onclick="showSection('transaksi')" class="active-nav"><i class="material-icons">point_of_sale</i>Kasir</button>
+    <button id="btn-riwayat" onclick="showSection('riwayat')"><i class="material-icons">history</i>Riwayat</button>
+    <button id="btn-pengeluaran" onclick="showSection('pengeluaran')"><i class="material-icons">payments</i>Biaya</button>
+    <button id="btn-laporan" onclick="showSection('laporan')"><i class="material-icons">bar_chart</i>Laporan</button>
+    <button id="btn-settings" onclick="showSection('settings')"><i class="material-icons">settings</i>Profil</button>
 </nav>
 
 <div class="container">
@@ -104,10 +104,10 @@
             <thead><tr><th>Uraian Pekerjaan / Sparepart</th><th style="width: 50px;">Qty</th><th>Harga</th><th style="width: 90px;">Subtotal</th><th class="no-print" style="width: 30px;">#</th></tr></thead>
             <tbody id="inputBody"></tbody>
         </table>
-        <button onclick="addRow()" style="margin-top:10px; background:var(--info); width:100%; color: white; padding: 12px; border:none; border-radius:5px;" class="no-print">+ Tambah Item Pekerjaan</button>
+        <button onclick="addRow()" style="margin-top:10px; background:var(--info); width:100%; color: white; padding: 12px; border:none; border-radius:5px;" class="no-print">+ Tambah Item</button>
         <div style="margin-top:20px;"><label>Catatan Tambahan:</label><textarea id="catatanTrx" rows="2"></textarea></div>
         <div class="total-display">Grand Total: Rp <span id="grandTotal">0</span></div>
-        <button onclick="processSaveAndPrint()" style="margin-top:20px; background:var(--success); padding: 15px; width:100%; font-size: 1.1rem; color: white; border:none; border-radius:5px;" class="no-print">ðŸ’¾ SIMPAN & CETAK NOTA</button>
+        <button onclick="processSaveAndPrint()" style="margin-top:20px; background:var(--success); padding: 15px; width:100%; font-size: 1.1rem; color: white; border:none; border-radius:5px;" class="no-print">💾 SIMPAN & CETAK NOTA</button>
     </div>
 
     <div id="riwayat" class="section">
@@ -135,7 +135,7 @@
     </div>
 
     <div id="laporan" class="section">
-        <h2>Laporan Keuangan</h2>
+        <h2>Laporan Bulanan</h2>
         <input type="month" id="filterBulan" onchange="runLaporan()" style="margin-bottom:20px; padding:12px; border-radius:5px; border:1px solid #ccc;">
         <div class="form-group">
             <div class="card-report bg-in">Pemasukan Jasa<br><h3 id="repJasa">Rp 0</h3></div>
@@ -157,12 +157,11 @@
         <hr style="margin:30px 0;">
         <div style="background:#e8f4fd; padding:20px; border-radius:8px; border:1px solid #b3d7ff;">
             <h3>Database & Backup</h3>
-            <p style="font-size:12px; color:#666;">Export data ke Excel atau Import dari file backup.</p>
             <input type="file" id="importFile" accept=".xlsx, .xls">
             <button onclick="handleImport()" style="background:var(--info); width:100%; margin-top:10px; color: white; border:none; padding:10px; border-radius:5px;">IMPORT DATA EXCEL</button>
             <div style="margin-top:15px; display:flex; gap:10px;">
-                <button onclick="exportExcel()" style="background:var(--success); flex:1; color: white; border:none; padding:10px; border-radius:5px;">ðŸ“¥ Download Backup</button>
-                <button onclick="resetData()" style="background:var(--danger); flex:1; color: white; border:none; padding:10px; border-radius:5px;">ðŸ—‘ï¸ Reset Data</button>
+                <button onclick="exportExcel()" style="background:var(--success); flex:1; color: white; border:none; padding:10px; border-radius:5px;">📥 Download Backup</button>
+                <button onclick="resetData()" style="background:var(--danger); flex:1; color: white; border:none; padding:10px; border-radius:5px;">🗑️ Reset Data</button>
             </div>
         </div>
     </div>
@@ -183,11 +182,7 @@
         trxs: [], exps: []
     };
 
-    window.onload = () => { 
-        initApp(); 
-        refreshUI(); // Memuat data awal
-        runLaporan(); 
-    };
+    window.onload = () => { initApp(); refreshUI(); runLaporan(); };
 
     function initApp() {
         document.getElementById('dispNama').innerText = db.config.name;
@@ -207,8 +202,6 @@
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-nav'));
         document.getElementById(id).classList.add('active');
         document.getElementById('btn-'+id).classList.add('active-nav');
-        
-        // PENTING: Refresh data setiap kali pindah menu
         refreshUI();
         runLaporan();
         window.scrollTo(0,0);
@@ -263,20 +256,18 @@
         setTimeout(() => { location.reload(); }, 1000);
     }
 
-    // FUNGSI LIHAT RIWAYAT (FIXED)
     function viewDetail(idx) {
         const t = db.trxs[idx];
         const items = JSON.parse(t.items || "[]");
-        let html = `<b>Nota:</b> ${t.nota}<br><b>Tgl:</b> ${t.tgl}<br><b>Unit:</b> ${t.unit}<hr>`;
+        let html = `<b>Nota:</b> ${t.nota}<br><b>Unit:</b> ${t.unit}<hr>`;
         items.forEach(it => {
-            html += `â€¢ ${it.desc} (${it.qty}x) : Rp ${(it.qty*it.prc).toLocaleString()}<br>`;
+            html += `• ${it.desc} (${it.qty}x) : Rp ${(it.qty*it.prc).toLocaleString()}<br>`;
         });
-        html += `<hr><b>Total: Rp ${t.total.toLocaleString()}</b><br><b>Note:</b> ${t.note || '-'}`;
+        html += `<hr><b>Total: Rp ${t.total.toLocaleString()}</b>`;
         document.getElementById('detContent').innerHTML = html;
         document.getElementById('modalDetail').style.display = 'block';
     }
 
-    // FUNGSI CETAK ULANG (FIXED)
     function reprint(idx) {
         const t = db.trxs[idx];
         document.getElementById('noNota').value = t.nota;
@@ -284,7 +275,6 @@
         document.getElementById('custNama').value = t.cust;
         document.getElementById('noPol').value = t.pol;
         document.getElementById('mobilKm').value = t.unit;
-        document.getElementById('catatanTrx').value = t.note;
         document.getElementById('inputBody').innerHTML = '';
         JSON.parse(t.items || "[]").forEach(it => addRow(it));
         showSection('transaksi');
@@ -305,13 +295,12 @@
                     </td></tr>`;
             });
         }
-        
         const eb = document.getElementById('keluarBody');
         if(eb) {
             eb.innerHTML = '';
             db.exps.slice().reverse().forEach((e, i) => {
-                const originalIdx = db.exps.length - 1 - i;
-                eb.innerHTML += `<tr><td>${e.tgl}</td><td>${e.ket}</td><td>${e.nom.toLocaleString()}</td><td><button onclick="deleteExp(${originalIdx})" style="color:red;border:none;background:none;cursor:pointer;">X</button></td></tr>`;
+                const oIdx = db.exps.length - 1 - i;
+                eb.innerHTML += `<tr><td>${e.tgl}</td><td>${e.ket}</td><td>${e.nom.toLocaleString()}</td><td><button onclick="deleteExp(${oIdx})" style="color:red;border:none;background:none;">X</button></td></tr>`;
             });
         }
     }
@@ -321,8 +310,7 @@
         let jasa = 0, part = 0;
         db.trxs.filter(t => t.tgl && t.tgl.startsWith(m)).forEach(t => {
             JSON.parse(t.items || "[]").forEach(it => {
-                if(parseInt(it.prc) >= 300000) part += (it.qty * it.prc);
-                else jasa += (it.qty * it.prc);
+                if(parseInt(it.prc) >= 300000) part += (it.qty * it.prc); else jasa += (it.qty * it.prc);
             });
         });
         const out = db.exps.filter(e => e.tgl && e.tgl.startsWith(m)).reduce((a, b) => a + b.nom, 0);
@@ -335,7 +323,7 @@
     function saveSettings() {
         db.config = { name: document.getElementById('setNama').value, addr: document.getElementById('setAlamat').value, bank: document.getElementById('setBank').value, owner: document.getElementById('setOwner').value };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-        alert("Profil Berhasil Disimpan!"); location.reload();
+        alert("Profil Disimpan!"); location.reload();
     }
 
     function exportExcel() {
@@ -352,11 +340,8 @@
         reader.onload = (e) => {
             const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
             const dataTrx = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-            dataTrx.forEach(row => {
-                if(!db.trxs.find(x => x.nota === row.nota)) db.trxs.push(row);
-            });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-            alert("Data Berhasil Diimport!"); location.reload();
+            dataTrx.forEach(row => { if(!db.trxs.find(x => x.nota === row.nota)) db.trxs.push(row); });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); location.reload();
         };
         reader.readAsArrayBuffer(file);
     }
@@ -366,7 +351,6 @@
         document.getElementById('custNama').value = '';
         document.getElementById('noPol').value = '';
         document.getElementById('mobilKm').value = '';
-        document.getElementById('catatanTrx').value = '';
         document.getElementById('inputBody').innerHTML = '';
         addRow();
     }
