@@ -2,257 +2,392 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BUMDes MANDIRI - PDF Version</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bengkel Pro v4.0 - Full Fixed</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { background-color: #f8fafc; padding-bottom: 90px; }
-        .app-card { background: white; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
-        .tab { display: none; }
-        .tab.active { display: block; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; border-top: 1px solid #e2e8f0; height: 75px; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #64748b; border: none; background: none; }
-        .nav-item.active { color: #2563eb; }
+        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #e67e22; --success: #27ae60; --danger: #c0392b; --light: #f4f7f6; --info: #3498db; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--light); color: #333; padding-bottom: 80px; }
+        header { background: var(--primary); color: white; padding: 1rem; text-align: center; border-bottom: 4px solid var(--accent); }
+        
+        /* Navigasi Bawah Modern */
+        nav { 
+            background: var(--secondary); 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center;
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            z-index: 100; 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            padding: 5px 0;
+        }
+        nav button { 
+            background: transparent; 
+            color: #bdc3c7; 
+            font-size: 11px; 
+            flex-direction: column; 
+            display: flex; 
+            align-items: center; 
+            padding: 8px 5px;
+            width: 20%;
+            border: none;
+            cursor: pointer;
+        }
+        nav button span { font-size: 20px; margin-bottom: 3px; }
+        nav button.active-nav { color: var(--accent); font-weight: bold; }
+        
+        .container { padding: 20px; max-width: 1100px; margin: auto; }
+        .section { display: none; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .active { display: block; }
+        
+        .form-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: var(--secondary); }
+        input, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; text-align: left; font-size: 13px; }
+        td { padding: 10px; border: 1px solid #dee2e6; font-size: 13px; }
+        
+        .btn-action { padding: 6px 12px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 11px; font-weight: bold; margin: 2px; }
+        .btn-view { background: var(--info); }
+        .btn-print { background: var(--success); }
+
+        .card-report { padding: 15px; border-radius: 8px; color: white; text-align: center; margin-bottom: 10px; }
+        .bg-in { background: var(--success); }
+        .bg-out { background: var(--danger); }
+        .bg-blue { background: var(--info); }
+
+        .total-display { text-align: right; font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-top: 15px; padding: 15px; background: #eee; border-radius: 5px; }
+        
+        #modalDetail { display:none; position:fixed; z-index:200; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
+        .modal-content { background:white; margin:5% auto; padding:20px; width:90%; max-width:600px; border-radius:10px; max-height: 85vh; overflow-y: auto; }
+
+        @media print {
+            nav, header, button, .no-print, hr, .section:not(.active) { display: none !important; }
+            body { background: white; padding-bottom: 0; }
+            .container { padding: 0; width: 100%; margin: 0; }
+            .section { box-shadow: none; border: none; padding: 0; display: block !important; }
+            input, textarea { border: none !important; padding: 2px !important; background: transparent !important; resize: none; font-size: 12px; }
+            .total-display { background: none; border-top: 2px solid #333; margin-top: 5px; }
+            table th, table td { font-size: 11px; padding: 5px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="p-3">
-    <div class="bg-dark text-white p-4 rounded-4 mb-4 shadow">
-        <h4 class="fw-bold mb-0 text-info">BUMDes MANDIRI</h4>
-        <small id="tgl-info"></small>
-        <hr class="opacity-25">
-        <div class="d-flex justify-content-between text-warning fw-bold">
-            <small>Saldo Bersih:</small>
-            <h5 id="dash-saldo">Rp 0</h5>
+<header class="no-print">
+    <h1 id="dispNama">Bengkel Pro</h1>
+    <p id="dispAlamat">Alamat Bengkel</p>
+</header>
+
+<nav class="no-print">
+    <button id="btn-transaksi" onclick="showSection('transaksi')" class="active-nav"><span>ðŸ“</span>Kasir</button>
+    <button id="btn-riwayat" onclick="showSection('riwayat')"><span>ðŸ•’</span>Riwayat</button>
+    <button id="btn-pengeluaran" onclick="showSection('pengeluaran')"><span>ðŸ’¸</span>Biaya</button>
+    <button id="btn-laporan" onclick="showSection('laporan')"><span>ðŸ“Š</span>Laporan</button>
+    <button id="btn-settings" onclick="showSection('settings')"><span>âš™ï¸</span>Profil</button>
+</nav>
+
+<div class="container">
+    <div id="transaksi" class="section active">
+        <h2 class="no-print">Nota Transaksi</h2>
+        <div class="form-group">
+            <div><label>No. Nota</label><input type="text" id="noNota" readonly style="background:#f0f0f0;"></div>
+            <div><label>Tanggal</label><input type="date" id="tglTrx"></div>
+            <div><label>Customer</label><input type="text" id="custNama"></div>
+            <div><label>No. Polisi</label><input type="text" id="noPol"></div>
+            <div><label>Mobil / KM</label><input type="text" id="mobilKm"></div>
+        </div>
+        <table>
+            <thead><tr><th>Uraian Pekerjaan / Sparepart</th><th style="width: 50px;">Qty</th><th>Harga</th><th style="width: 90px;">Subtotal</th><th class="no-print" style="width: 30px;">#</th></tr></thead>
+            <tbody id="inputBody"></tbody>
+        </table>
+        <button onclick="addRow()" style="margin-top:10px; background:var(--info); width:100%; color: white; padding: 12px; border:none; border-radius:5px;" class="no-print">+ Tambah Item Pekerjaan</button>
+        <div style="margin-top:20px;"><label>Catatan Tambahan:</label><textarea id="catatanTrx" rows="2"></textarea></div>
+        <div class="total-display">Grand Total: Rp <span id="grandTotal">0</span></div>
+        <button onclick="processSaveAndPrint()" style="margin-top:20px; background:var(--success); padding: 15px; width:100%; font-size: 1.1rem; color: white; border:none; border-radius:5px;" class="no-print">ðŸ’¾ SIMPAN & CETAK NOTA</button>
+    </div>
+
+    <div id="riwayat" class="section">
+        <h2>Riwayat Transaksi</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead><tr><th>No. Nota</th><th>Pelanggan</th><th>Unit</th><th>Total</th><th class="no-print">Aksi</th></tr></thead>
+                <tbody id="riwayatBody"></tbody>
+            </table>
         </div>
     </div>
 
-    <div id="tab-kasir" class="tab active">
-        <div class="app-card">
-            <label class="small fw-bold text-muted">PETUGAS ADMIN</label>
-            <input type="text" id="admin" class="form-control mb-2" placeholder="Nama Admin">
-            <div class="row g-2">
-                <div class="col-6">
-                    <label class="small fw-bold text-muted">BERAT (KG)</label>
-                    <input type="number" id="berat" class="form-control" placeholder="0.0" oninput="hitung()">
-                </div>
-                <div class="col-6">
-                    <label class="small fw-bold text-muted">HARGA (RP)</label>
-                    <input type="number" id="harga" class="form-control" placeholder="25000" oninput="hitung()">
-                </div>
+    <div id="pengeluaran" class="section">
+        <h2>Input Pengeluaran Bengkel</h2>
+        <div class="form-group">
+            <div><label>Tanggal</label><input type="date" id="tglKeluar"></div>
+            <div><label>Keterangan</label><input type="text" id="ketKeluar"></div>
+            <div><label>Nominal (Rp)</label><input type="number" id="nomKeluar"></div>
+        </div>
+        <button onclick="addPengeluaran()" style="background:var(--success); color: white; width:100%; padding:10px; border:none; border-radius:5px;">Simpan Biaya</button>
+        <table>
+            <thead><tr><th>Tgl</th><th>Keterangan</th><th>Nominal</th><th class="no-print">#</th></tr></thead>
+            <tbody id="keluarBody"></tbody>
+        </table>
+    </div>
+
+    <div id="laporan" class="section">
+        <h2>Laporan Keuangan</h2>
+        <input type="month" id="filterBulan" onchange="runLaporan()" style="margin-bottom:20px; padding:12px; border-radius:5px; border:1px solid #ccc;">
+        <div class="form-group">
+            <div class="card-report bg-in">Pemasukan Jasa<br><h3 id="repJasa">Rp 0</h3></div>
+            <div class="card-report bg-blue">Pemasukan Part<br><h3 id="repPart">Rp 0</h3></div>
+            <div class="card-report bg-out">Total Biaya<br><h3 id="repOut">Rp 0</h3></div>
+            <div style="background:var(--primary); padding:15px; color:white; border-radius:8px; text-align:center;">Laba Bersih<br><h3 id="repNet">Rp 0</h3></div>
+        </div>
+    </div>
+
+    <div id="settings" class="section">
+        <h2>Pengaturan Profil & Database</h2>
+        <div class="form-group">
+            <div><label>Nama Bengkel</label><input type="text" id="setNama"></div>
+            <div><label>Alamat & Telp</label><input type="text" id="setAlamat"></div>
+            <div><label>No. Rekening</label><input type="text" id="setBank"></div>
+            <div><label>Nama Pemilik</label><input type="text" id="setOwner"></div>
+        </div>
+        <button onclick="saveSettings()" style="background:var(--success); width:100%; color: white; padding:12px; border:none; border-radius:5px;">Simpan Profil</button>
+        <hr style="margin:30px 0;">
+        <div style="background:#e8f4fd; padding:20px; border-radius:8px; border:1px solid #b3d7ff;">
+            <h3>Database & Backup</h3>
+            <p style="font-size:12px; color:#666;">Export data ke Excel atau Import dari file backup.</p>
+            <input type="file" id="importFile" accept=".xlsx, .xls">
+            <button onclick="handleImport()" style="background:var(--info); width:100%; margin-top:10px; color: white; border:none; padding:10px; border-radius:5px;">IMPORT DATA EXCEL</button>
+            <div style="margin-top:15px; display:flex; gap:10px;">
+                <button onclick="exportExcel()" style="background:var(--success); flex:1; color: white; border:none; padding:10px; border-radius:5px;">ðŸ“¥ Download Backup</button>
+                <button onclick="resetData()" style="background:var(--danger); flex:1; color: white; border:none; padding:10px; border-radius:5px;">ðŸ—‘ï¸ Reset Data</button>
             </div>
         </div>
-        <div class="app-card bg-primary text-white text-center">
-            <small class="opacity-75">TOTAL BAYAR</small>
-            <h2 id="total-display" class="fw-bold">Rp 0</h2>
-        </div>
-        <button onclick="simpanTrx()" class="btn btn-dark w-100 py-3 fw-bold">SIMPAN & DOWNLOAD NOTA (PDF)</button>
-    </div>
-
-    <div id="tab-biaya" class="tab">
-        <div class="app-card border-start border-danger border-4">
-            <h6 class="fw-bold text-danger">INPUT PENGELUARAN</h6>
-            <input type="text" id="ket-biaya" class="form-control mb-2" placeholder="Keterangan">
-            <input type="number" id="nom-biaya" class="form-control mb-3" placeholder="Nominal Rp">
-            <button onclick="simpanBiaya()" class="btn btn-danger w-100 fw-bold">SIMPAN BIAYA</button>
-        </div>
-        <h6 class="fw-bold small text-muted px-2">DAFTAR BIAYA</h6>
-        <div id="list-biaya-full"></div>
-    </div>
-
-    <div id="tab-riwayat" class="tab">
-        <h6 class="fw-bold small text-muted px-2">RIWAYAT TRANSAKSI (KG & HARGA)</h6>
-        <div id="list-riwayat"></div>
-    </div>
-
-    <div id="tab-laporan" class="tab">
-        <div class="app-card border-top border-dark border-4">
-            <h6 class="fw-bold small">LAPORAN HARIAN</h6>
-            <input type="date" id="tgl-lap" class="form-control mb-2" onchange="updateLaporan()">
-            <div id="res-harian" class="p-2 bg-light rounded small fw-bold mb-2">Pilih Tanggal</div>
-            <button onclick="cetakLaporan('Harian')" class="btn btn-dark btn-sm w-100">SIMPAN LAPORAN PDF</button>
-        </div>
-        <div class="app-card border-top border-primary border-4">
-            <h6 class="fw-bold small text-primary">LAPORAN BULANAN</h6>
-            <input type="month" id="bln-lap" class="form-control mb-2" onchange="updateLaporan()">
-            <div id="res-bulanan" class="p-2 bg-light rounded small fw-bold mb-2 text-primary">Pilih Bulan</div>
-            <button onclick="cetakLaporan('Bulanan')" class="btn btn-primary btn-sm w-100">SIMPAN LAPORAN PDF</button>
-        </div>
-    </div>
-
-    <div id="tab-opsi" class="tab">
-        <div class="app-card">
-            <button onclick="exportExcel()" class="btn btn-success w-100 py-3 fw-bold mb-4">BACKUP KE EXCEL</button>
-            <div class="border-top pt-3">
-                <p class="small fw-bold text-center text-muted">RESTORE DATA</p>
-                <input type="file" id="file-import" class="form-control mb-2">
-                <button onclick="importExcel()" class="btn btn-outline-secondary w-100 btn-sm">PROSES IMPORT</button>
-            </div>
-        </div>
-        <button onclick="resetData()" class="btn btn-link text-danger w-100 mt-5 opacity-25">Reset Semua Data</button>
     </div>
 </div>
 
-<nav class="bottom-nav shadow-lg">
-    <button class="nav-item active" onclick="nav('kasir', this)">🛒 KASIR</button>
-    <button class="nav-item" onclick="nav('biaya', this)">💸 BIAYA</button>
-    <button class="nav-item" onclick="nav('riwayat', this)">📋 RIWAYAT</button>
-    <button class="nav-item" onclick="nav('laporan', this)">📊 LAPORAN</button>
-    <button class="nav-item" onclick="nav('opsi', this)">⚙️ OPSI</button>
-</nav>
+<div id="modalDetail" class="no-print">
+    <div class="modal-content">
+        <h3 id="detNota">Detail Transaksi</h3><hr>
+        <div id="detContent"></div>
+        <button onclick="document.getElementById('modalDetail').style.display='none'" style="margin-top:20px; width:100%; background:var(--secondary); color:white; padding: 12px; border: none; border-radius: 5px;">Tutup</button>
+    </div>
+</div>
 
 <script>
-    const { jsPDF } = window.jspdf;
-    let db_trx = JSON.parse(localStorage.getItem('db_final_v21_trx')) || [];
-    let db_biaya = JSON.parse(localStorage.getItem('db_final_v21_biaya')) || [];
-
-    window.onload = () => {
-        document.getElementById('tgl-info').innerText = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        updateDashboard();
-        renderBiaya();
+    const STORAGE_KEY = 'bengkel_pro_v4_system';
+    let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        config: { name: 'Bengkel Pro', addr: 'Alamat', bank: '-', owner: '-' },
+        trxs: [], exps: []
     };
 
-    function nav(s, el) {
-        document.querySelectorAll('.tab').forEach(x => x.style.display = 'none');
-        document.getElementById('tab-' + s).style.display = 'block';
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-        if(s === 'riwayat') renderRiwayat();
-        if(s === 'biaya') renderBiaya();
+    window.onload = () => { 
+        initApp(); 
+        refreshUI(); // Memuat data awal
+        runLaporan(); 
+    };
+
+    function initApp() {
+        document.getElementById('dispNama').innerText = db.config.name;
+        document.getElementById('dispAlamat').innerText = db.config.addr;
+        document.getElementById('setNama').value = db.config.name;
+        document.getElementById('setAlamat').value = db.config.addr;
+        document.getElementById('setBank').value = db.config.bank;
+        document.getElementById('setOwner').value = db.config.owner;
+        document.getElementById('tglTrx').valueAsDate = new Date();
+        document.getElementById('tglKeluar').valueAsDate = new Date();
+        document.getElementById('filterBulan').value = new Date().toISOString().slice(0, 7);
+        resetKasir();
     }
 
-    function hitung() {
-        const t = (Number(document.getElementById('berat').value) || 0) * (Number(document.getElementById('harga').value) || 0);
-        document.getElementById('total-display').innerText = "Rp " + t.toLocaleString();
-    }
-
-    function updateDashboard() {
-        const h = new Date().toISOString().slice(0,10);
-        const o = db_trx.filter(x => x.tgl.startsWith(h)).reduce((a,b) => a + b.total, 0);
-        const b = db_biaya.filter(x => x.tgl.startsWith(h)).reduce((a,b) => a + b.nominal, 0);
-        document.getElementById('dash-saldo').innerText = "Rp " + (o - b).toLocaleString();
-    }
-
-    // FUNGSI BUAT PDF (PENGGANTI PRINT YANG GAGAL)
-    function buatPDF(judul, isiTeks) {
-        const doc = new jsPDF({ unit: 'mm', format: [80, 150] }); // Ukuran kertas thermal
-        doc.setFont("courier", "bold");
-        doc.text("BUMDes MANDIRI", 40, 10, { align: "center" });
-        doc.setFontSize(10);
-        doc.text(new Date().toLocaleString(), 40, 16, { align: "center" });
-        doc.text("--------------------------", 40, 22, { align: "center" });
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-nav'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-'+id).classList.add('active-nav');
         
-        let y = 30;
-        isiTeks.forEach(line => {
-            doc.text(line, 5, y);
-            y += 7;
+        // PENTING: Refresh data setiap kali pindah menu
+        refreshUI();
+        runLaporan();
+        window.scrollTo(0,0);
+    }
+
+    function addRow(val = {desc:'', qty:1, prc:0}) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="i-desc" value="${val.desc}"></td>
+            <td><input type="number" class="i-qty" value="${val.qty}" oninput="calcTotal()"></td>
+            <td><input type="number" class="i-prc" value="${val.prc}" oninput="calcTotal()"></td>
+            <td class="i-sub" style="text-align:right;">${(val.qty * val.prc).toLocaleString()}</td>
+            <td class="no-print"><button onclick="this.parentElement.parentElement.remove(); calcTotal();" style="background:red; color:white; border:none; padding: 5px; border-radius:3px;">X</button></td>`;
+        document.getElementById('inputBody').appendChild(tr);
+        calcTotal();
+    }
+
+    function calcTotal() {
+        let grand = 0;
+        document.querySelectorAll('#inputBody tr').forEach(row => {
+            const q = row.querySelector('.i-qty').value || 0;
+            const p = row.querySelector('.i-prc').value || 0;
+            const sub = q * p;
+            row.querySelector('.i-sub').innerText = sub.toLocaleString('id-ID');
+            grand += sub;
         });
-
-        doc.text("--------------------------", 40, y+5, { align: "center" });
-        doc.text("Terima Kasih", 40, y+12, { align: "center" });
-        doc.save(`${judul}.pdf`);
+        document.getElementById('grandTotal').innerText = grand.toLocaleString('id-ID');
     }
 
-    function simpanTrx() {
-        const adm = document.getElementById('admin').value || 'Petugas';
-        const kg = Number(document.getElementById('berat').value);
-        const hrg = Number(document.getElementById('harga').value);
-        if(!kg) return alert("Isi Berat!");
+    function processSaveAndPrint() {
+        const items = [];
+        document.querySelectorAll('#inputBody tr').forEach(row => {
+            const d = row.querySelector('.i-desc').value;
+            if(d) items.push({ desc: d, qty: parseInt(row.querySelector('.i-qty').value), prc: parseInt(row.querySelector('.i-prc').value) });
+        });
+        if(items.length === 0) return alert("Uraian kosong!");
 
-        const item = { id: Date.now(), tgl: new Date().toISOString(), adm, kg, hrg, total: kg * hrg };
-        db_trx.push(item);
-        localStorage.setItem('db_final_v21_trx', JSON.stringify(db_trx));
+        const dataTrx = {
+            nota: document.getElementById('noNota').value,
+            tgl: document.getElementById('tglTrx').value,
+            cust: document.getElementById('custNama').value,
+            pol: document.getElementById('noPol').value,
+            unit: document.getElementById('mobilKm').value,
+            note: document.getElementById('catatanTrx').value,
+            total: items.reduce((a, b) => a + (b.qty * b.prc), 0),
+            items: JSON.stringify(items)
+        };
 
-        const rincian = [
-            `Admin  : ${item.adm}`,
-            `Berat  : ${item.kg} Kg`,
-            `Harga  : Rp ${item.hrg.toLocaleString()}`,
-            ` `,
-            `TOTAL  : Rp ${item.total.toLocaleString()}`
-        ];
-        buatPDF("Nota_BUMDes", rincian);
+        db.trxs.push(dataTrx);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        window.print();
+        setTimeout(() => { location.reload(); }, 1000);
+    }
+
+    // FUNGSI LIHAT RIWAYAT (FIXED)
+    function viewDetail(idx) {
+        const t = db.trxs[idx];
+        const items = JSON.parse(t.items || "[]");
+        let html = `<b>Nota:</b> ${t.nota}<br><b>Tgl:</b> ${t.tgl}<br><b>Unit:</b> ${t.unit}<hr>`;
+        items.forEach(it => {
+            html += `â€¢ ${it.desc} (${it.qty}x) : Rp ${(it.qty*it.prc).toLocaleString()}<br>`;
+        });
+        html += `<hr><b>Total: Rp ${t.total.toLocaleString()}</b><br><b>Note:</b> ${t.note || '-'}`;
+        document.getElementById('detContent').innerHTML = html;
+        document.getElementById('modalDetail').style.display = 'block';
+    }
+
+    // FUNGSI CETAK ULANG (FIXED)
+    function reprint(idx) {
+        const t = db.trxs[idx];
+        document.getElementById('noNota').value = t.nota;
+        document.getElementById('tglTrx').value = t.tgl;
+        document.getElementById('custNama').value = t.cust;
+        document.getElementById('noPol').value = t.pol;
+        document.getElementById('mobilKm').value = t.unit;
+        document.getElementById('catatanTrx').value = t.note;
+        document.getElementById('inputBody').innerHTML = '';
+        JSON.parse(t.items || "[]").forEach(it => addRow(it));
+        showSection('transaksi');
+        setTimeout(() => { window.print(); }, 500);
+    }
+
+    function refreshUI() {
+        const rb = document.getElementById('riwayatBody');
+        if(rb) {
+            rb.innerHTML = '';
+            db.trxs.slice().reverse().forEach((t, i) => {
+                const realIdx = db.trxs.length - 1 - i;
+                rb.innerHTML += `<tr>
+                    <td>${t.nota}</td><td>${t.cust}</td><td>${t.pol}</td><td>${t.total.toLocaleString()}</td>
+                    <td class="no-print">
+                        <button onclick="viewDetail(${realIdx})" class="btn-action btn-view">Lihat</button>
+                        <button onclick="reprint(${realIdx})" class="btn-action btn-print">Cetak</button>
+                    </td></tr>`;
+            });
+        }
         
-        document.getElementById('berat').value = ""; hitung(); updateDashboard();
-    }
-
-    function simpanBiaya() {
-        const ket = document.getElementById('ket-biaya').value;
-        const nom = Number(document.getElementById('nom-biaya').value);
-        if(!nom) return alert("Isi nominal!");
-        db_biaya.push({ id: Date.now(), tgl: new Date().toISOString(), ket, nominal: nom });
-        localStorage.setItem('db_final_v21_biaya', JSON.stringify(db_biaya));
-        document.getElementById('ket-biaya').value = ""; document.getElementById('nom-biaya').value = "";
-        renderBiaya(); updateDashboard();
-    }
-
-    function renderBiaya() {
-        document.getElementById('list-biaya-full').innerHTML = db_biaya.slice().reverse().map(b => `
-            <div class="app-card d-flex justify-content-between py-2 border-end border-danger border-4">
-                <div><b class="small text-uppercase">${b.ket}</b><br><small class="text-muted">${b.tgl.slice(0,10)}</small></div>
-                <b class="text-danger">Rp ${b.nominal.toLocaleString()}</b>
-            </div>`).join('') || '<p class="text-center small py-3">Kosong</p>';
-    }
-
-    function renderRiwayat() {
-        document.getElementById('list-riwayat').innerHTML = db_trx.slice().reverse().map(x => `
-            <div class="app-card shadow-sm">
-                <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                    <div><b class="small text-uppercase">${x.adm}</b><br><small class="text-muted">${x.tgl.replace('T',' ').slice(0,16)}</small></div>
-                    <b class="text-primary">Rp ${x.total.toLocaleString()}</b>
-                </div>
-                <div class="d-flex justify-content-between small fw-bold text-secondary">
-                    <span>${x.kg} Kg</span>
-                    <span>@ Rp ${x.hrg.toLocaleString()}</span>
-                </div>
-            </div>`).join('') || '<p class="text-center small py-5">Kosong</p>';
-    }
-
-    function updateLaporan() {
-        const d = document.getElementById('tgl-lap').value;
-        const m = document.getElementById('bln-lap').value;
-        if(d) {
-            const o = db_trx.filter(x => x.tgl.startsWith(d)).reduce((a,b)=>a+b.total,0);
-            const b = db_biaya.filter(x => x.tgl.startsWith(d)).reduce((a,b)=>a+b.nominal,0);
-            document.getElementById('res-harian').innerHTML = `Laba: Rp ${(o-b).toLocaleString()}`;
-        }
-        if(m) {
-            const oM = db_trx.filter(x => x.tgl.startsWith(m)).reduce((a,b)=>a+b.total,0);
-            const bM = db_biaya.filter(x => x.tgl.startsWith(m)).reduce((a,b)=>a+b.nominal,0);
-            document.getElementById('res-bulanan').innerHTML = `Laba: Rp ${(oM-bM).toLocaleString()}`;
+        const eb = document.getElementById('keluarBody');
+        if(eb) {
+            eb.innerHTML = '';
+            db.exps.slice().reverse().forEach((e, i) => {
+                const originalIdx = db.exps.length - 1 - i;
+                eb.innerHTML += `<tr><td>${e.tgl}</td><td>${e.ket}</td><td>${e.nom.toLocaleString()}</td><td><button onclick="deleteExp(${originalIdx})" style="color:red;border:none;background:none;cursor:pointer;">X</button></td></tr>`;
+            });
         }
     }
 
-    function cetakLaporan(tipe) {
-        const isi = (tipe === 'Harian') ? document.getElementById('res-harian').innerText : document.getElementById('res-bulanan').innerText;
-        buatPDF("Laporan_"+tipe, [`Laporan ${tipe}`, isi]);
+    function runLaporan() {
+        const m = document.getElementById('filterBulan').value;
+        let jasa = 0, part = 0;
+        db.trxs.filter(t => t.tgl && t.tgl.startsWith(m)).forEach(t => {
+            JSON.parse(t.items || "[]").forEach(it => {
+                if(parseInt(it.prc) >= 300000) part += (it.qty * it.prc);
+                else jasa += (it.qty * it.prc);
+            });
+        });
+        const out = db.exps.filter(e => e.tgl && e.tgl.startsWith(m)).reduce((a, b) => a + b.nom, 0);
+        document.getElementById('repJasa').innerText = "Rp " + jasa.toLocaleString('id-ID');
+        document.getElementById('repPart').innerText = "Rp " + part.toLocaleString('id-ID');
+        document.getElementById('repOut').innerText = "Rp " + out.toLocaleString('id-ID');
+        document.getElementById('repNet').innerText = "Rp " + (jasa + part - out).toLocaleString('id-ID');
+    }
+
+    function saveSettings() {
+        db.config = { name: document.getElementById('setNama').value, addr: document.getElementById('setAlamat').value, bank: document.getElementById('setBank').value, owner: document.getElementById('setOwner').value };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        alert("Profil Berhasil Disimpan!"); location.reload();
     }
 
     function exportExcel() {
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db_trx), "Transaksi");
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db_biaya), "Biaya");
-        XLSX.writeFile(wb, "Backup_BUMDes.xlsx");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.trxs), "DataTransaksi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.exps), "DataPengeluaran");
+        XLSX.writeFile(wb, "Bengkel_Backup.xlsx");
     }
 
-    function importExcel() {
-        const f = document.getElementById('file-import').files[0];
-        if(!f) return alert("Pilih file!");
-        const r = new FileReader();
-        r.onload = (e) => {
-            const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-            db_trx = XLSX.utils.sheet_to_json(wb.Sheets.Transaksi) || [];
-            db_biaya = XLSX.utils.sheet_to_json(wb.Sheets.Biaya) || [];
-            localStorage.setItem('db_final_v21_trx', JSON.stringify(db_trx));
-            localStorage.setItem('db_final_v21_biaya', JSON.stringify(db_biaya));
-            alert("Berhasil!"); location.reload();
+    function handleImport() {
+        const file = document.getElementById('importFile').files[0];
+        if(!file) return alert("Pilih file!");
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const dataTrx = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+            dataTrx.forEach(row => {
+                if(!db.trxs.find(x => x.nota === row.nota)) db.trxs.push(row);
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+            alert("Data Berhasil Diimport!"); location.reload();
         };
-        r.readAsArrayBuffer(f);
+        reader.readAsArrayBuffer(file);
     }
 
-    function resetData() { if(confirm("Hapus semua?")) { localStorage.clear(); location.reload(); } }
+    function resetKasir() {
+        generateNotaOtomatis();
+        document.getElementById('custNama').value = '';
+        document.getElementById('noPol').value = '';
+        document.getElementById('mobilKm').value = '';
+        document.getElementById('catatanTrx').value = '';
+        document.getElementById('inputBody').innerHTML = '';
+        addRow();
+    }
+
+    function generateNotaOtomatis() {
+        const d = new Date();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = d.getFullYear().toString().slice(-2);
+        const prefix = `${mm}-${yy}`;
+        const trxsInMonth = db.trxs.filter(t => t.nota && t.nota.startsWith(prefix));
+        document.getElementById('noNota').value = `${prefix}-${String(trxsInMonth.length + 1).padStart(4, '0')}`;
+    }
+
+    function addPengeluaran() {
+        const p = { tgl: document.getElementById('tglKeluar').value, ket: document.getElementById('ketKeluar').value, nom: parseInt(document.getElementById('nomKeluar').value || 0) };
+        if(!p.ket || !p.nom) return alert("Isi data!");
+        db.exps.push(p); localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); refreshUI(); runLaporan();
+    }
+
+    function deleteExp(i) { if(confirm("Hapus?")) { db.exps.splice(i, 1); localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); refreshUI(); runLaporan(); } }
+    function resetData() { if(confirm("Hapus seluruh database?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
